@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melsoft Academy — BDM Sales Quiz</title>
+<!--
+  ============================================================
+  MELSOFT ACADEMY — BDM SALES ONBOARDING QUIZ
+  ============================================================
+
+  HOSTING: This file must be served over HTTP (hosted on a
+  static host like Netlify, Vercel, GitHub Pages, or any web
+  server). Opening it directly via file:// will work for the
+  quiz itself, but the EmailJS result-sending requires an
+  internet connection and proper HTTP hosting.
+
+  TO DEPLOY:
+  1. Configure the EmailJS credentials below (see comments)
+  2. Replace placeholder questions with the real question bank
+  3. Upload this single file to your static host
+
+  ============================================================
+-->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#6B2D8B;
+  --purple-light:#8B4DAB;
+  --green:#1B7D3A;
+  --green-bg:#E8F5E9;
+  --red:#C62828;
+  --red-bg:#FFEBEE;
+  --orange:#E65100;
+  --orange-bg:#FFF3E0;
+  --gray-100:#F5F5F5;
+  --gray-200:#EEEEEE;
+  --gray-300:#E0E0E0;
+  --gray-600:#757575;
+  --gray-800:#424242;
+  --gray-900:#212121;
+}
+html{font-size:16px}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  color:var(--gray-900);
+  background:#fff;
+  line-height:1.5;
+  min-height:100vh;
+}
+.header{
+  background:var(--purple);
+  color:#fff;
+  padding:14px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.header-title{font-size:1.1rem;font-weight:700;letter-spacing:0.3px}
+.timer{
+  font-size:1.4rem;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  padding:4px 16px;
+  border-radius:6px;
+  background:rgba(255,255,255,0.15);
+  min-width:90px;
+  text-align:center;
+}
+.timer.warning{background:var(--orange);color:#fff}
+.timer.danger{background:var(--red);color:#fff}
+.container{max-width:720px;margin:0 auto;padding:24px 20px 60px}
+
+/* START SCREEN */
+.screen{display:none}
+.screen.active{display:block}
+.logo-area{text-align:center;margin-bottom:32px}
+.logo-area h1{color:var(--purple);font-size:1.8rem;margin-bottom:4px}
+.logo-area p{color:var(--gray-600);font-size:1rem}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-weight:600;margin-bottom:6px;font-size:0.95rem}
+.form-group input{
+  width:100%;
+  padding:12px 14px;
+  border:2px solid var(--gray-300);
+  border-radius:8px;
+  font-size:1rem;
+  transition:border-color 0.2s;
+}
+.form-group input:focus{outline:none;border-color:var(--purple)}
+.rules-box{
+  background:var(--gray-100);
+  border:1px solid var(--gray-300);
+  border-radius:8px;
+  padding:20px 24px;
+  margin:28px 0 24px;
+}
+.rules-box h3{font-size:1.05rem;margin-bottom:12px;color:var(--gray-900)}
+.rules-box ul{padding-left:20px}
+.rules-box li{margin-bottom:8px;font-size:0.95rem;color:var(--gray-800)}
+.checkbox-row{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin:24px 0;
+  cursor:pointer;
+}
+.checkbox-row input[type="checkbox"]{
+  width:20px;
+  height:20px;
+  margin-top:2px;
+  accent-color:var(--purple);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.checkbox-row span{font-size:0.95rem;color:var(--gray-800)}
+.btn{
+  display:inline-block;
+  padding:14px 40px;
+  border:none;
+  border-radius:8px;
+  font-size:1.05rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:opacity 0.2s,transform 0.1s;
+}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:var(--purple);color:#fff}
+.btn-primary:hover{opacity:0.9}
+.btn-primary:disabled{background:var(--gray-300);color:var(--gray-600);cursor:not-allowed;transform:none}
+.btn-begin{width:100%;padding:16px;font-size:1.15rem}
+
+/* QUIZ SCREEN */
+.progress-area{margin-bottom:24px}
+.progress-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:8px;
+}
+.progress-question{font-weight:600;font-size:0.95rem;color:var(--gray-800)}
+.progress-section{
+  font-size:0.85rem;
+  font-weight:600;
+  color:var(--purple);
+  background:rgba(107,45,139,0.08);
+  padding:3px 12px;
+  border-radius:20px;
+}
+.progress-bar-track{
+  width:100%;
+  height:8px;
+  background:var(--gray-200);
+  border-radius:4px;
+  overflow:hidden;
+}
+.progress-bar-fill{
+  height:100%;
+  background:var(--purple);
+  border-radius:4px;
+  transition:width 0.3s ease;
+}
+.question-text{
+  font-size:1.15rem;
+  font-weight:600;
+  line-height:1.55;
+  margin-bottom:24px;
+  color:var(--gray-900);
+}
+.options-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.option-btn{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  width:100%;
+  padding:16px 18px;
+  border:2px solid var(--gray-300);
+  border-radius:10px;
+  background:#fff;
+  cursor:pointer;
+  text-align:left;
+  font-size:1rem;
+  line-height:1.45;
+  transition:border-color 0.15s,background 0.15s;
+}
+.option-btn:hover{border-color:var(--purple-light);background:rgba(107,45,139,0.03)}
+.option-btn.selected{border-color:var(--purple);background:rgba(107,45,139,0.07)}
+.option-letter{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:var(--gray-200);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:0.9rem;
+  flex-shrink:0;
+  color:var(--gray-800);
+}
+.option-btn.selected .option-letter{background:var(--purple);color:#fff}
+.option-text{flex:1}
+.btn-next{float:right}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  top:70px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--red);
+  color:#fff;
+  padding:12px 28px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:1rem;
+  z-index:200;
+  opacity:0;
+  transition:opacity 0.3s;
+  pointer-events:none;
+}
+.toast.show{opacity:1}
+
+/* RESULTS SCREEN */
+.results-header{text-align:center;margin-bottom:32px}
+.results-candidate{font-size:0.95rem;color:var(--gray-600);margin-bottom:4px}
+.time-expired-banner{
+  background:var(--red);
+  color:#fff;
+  padding:14px 20px;
+  border-radius:8px;
+  font-weight:600;
+  text-align:center;
+  margin-bottom:24px;
+  font-size:1rem;
+}
+.score-display{
+  font-size:2.8rem;
+  font-weight:800;
+  margin:16px 0 4px;
+}
+.score-pct{font-size:1.6rem;color:var(--gray-600);font-weight:600}
+.pass-badge,.fail-badge{
+  display:inline-block;
+  padding:10px 36px;
+  border-radius:8px;
+  font-size:1.3rem;
+  font-weight:800;
+  letter-spacing:1px;
+  margin:16px 0 8px;
+}
+.pass-badge{background:var(--green-bg);color:var(--green);border:2px solid var(--green)}
+.fail-badge{background:var(--red-bg);color:var(--red);border:2px solid var(--red)}
+.time-taken{font-size:0.95rem;color:var(--gray-600);margin-top:4px}
+
+.section-breakdown{margin:32px 0}
+.section-breakdown h3{font-size:1.1rem;margin-bottom:16px;color:var(--gray-900)}
+.section-card{
+  border:1px solid var(--gray-300);
+  border-radius:10px;
+  padding:16px 20px;
+  margin-bottom:12px;
+}
+.section-card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:6px;
+}
+.section-card-name{font-weight:700;font-size:1rem}
+.section-card-score{font-weight:700;font-size:1.05rem}
+.section-card-bar{
+  width:100%;
+  height:6px;
+  background:var(--gray-200);
+  border-radius:3px;
+  overflow:hidden;
+  margin:8px 0;
+}
+.section-card-bar-fill{height:100%;border-radius:3px;transition:width 0.4s}
+.section-interpretation{font-size:0.9rem;font-style:italic;margin-top:4px}
+.interp-green{color:var(--green)}
+.interp-orange{color:var(--orange)}
+.interp-red{color:var(--red)}
+
+.review-section{margin-top:40px}
+.review-section h3{font-size:1.1rem;margin-bottom:16px}
+.review-card{
+  border:1px solid var(--gray-300);
+  border-radius:10px;
+  padding:18px 20px;
+  margin-bottom:14px;
+}
+.review-card.correct{border-left:4px solid var(--green)}
+.review-card.incorrect{border-left:4px solid var(--red)}
+.review-card.unanswered{border-left:4px solid var(--gray-600)}
+.review-q-num{font-size:0.85rem;color:var(--gray-600);margin-bottom:6px;font-weight:600}
+.review-q-text{font-weight:600;margin-bottom:12px;line-height:1.5}
+.review-answer{font-size:0.95rem;margin-bottom:4px}
+.review-answer .label{font-weight:600}
+.review-correct-text{color:var(--green)}
+.review-incorrect-text{color:var(--red)}
+.review-unanswered-text{color:var(--gray-600);font-style:italic}
+.review-explanation{
+  font-size:0.9rem;
+  color:var(--gray-600);
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid var(--gray-200);
+  line-height:1.5;
+}
+.btn-print{
+  background:var(--purple);
+  color:#fff;
+  margin-bottom:24px;
+}
+.print-bar{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:24px;
+}
+
+@media print{
+  .header{position:static}
+  .btn,.toast,.print-bar{display:none!important}
+  .container{max-width:100%;padding:10px}
+  .review-card{break-inside:avoid}
+  .section-card{break-inside:avoid}
+}
+@media(max-width:600px){
+  .header{padding:10px 14px}
+  .header-title{font-size:0.95rem}
+  .timer{font-size:1.15rem;padding:4px 10px}
+  .container{padding:16px 14px 40px}
+  .logo-area h1{font-size:1.4rem}
+  .question-text{font-size:1.05rem}
+  .option-btn{padding:14px 14px}
+  .score-display{font-size:2.2rem}
+  .btn-next{float:none;width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">Melsoft Academy</div>
+  <div class="timer" id="timer" style="display:none">45:00</div>
+</div>
+
+<div class="toast" id="toast">5 minutes remaining</div>
+
+<div class="container">
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="logo-area">
+      <h1>BDM Sales Quiz</h1>
+      <p>Melsoft Academy — Sales Team Onboarding Assessment</p>
+    </div>
+
+    <div class="form-group">
+      <label for="candidate-name">Full Name</label>
+      <input type="text" id="candidate-name" placeholder="Enter your full name" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label for="quiz-date">Date</label>
+      <input type="date" id="quiz-date">
+    </div>
+
+    <div class="rules-box">
+      <h3>Quiz Rules</h3>
+      <ul>
+        <li><strong>52 questions</strong> across 4 sections</li>
+        <li><strong>45 minutes</strong> — the timer starts the moment you click Begin and cannot be paused</li>
+        <li><strong>One question at a time, no going back</strong> — you must select an answer to advance</li>
+        <li><strong>Do not refresh or close the window</strong> — the quiz cannot be resumed</li>
+        <li><strong>No feedback until the end</strong> — you will not know if your answers are correct until the results screen</li>
+        <li>If time expires, the quiz <strong>ends immediately</strong> and unanswered questions are marked incorrect</li>
+        <li>Your results will be <strong>automatically sent to your manager</strong> on completion</li>
+      </ul>
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="confirm-rules">
+      <span>I have read and understood the quiz rules above</span>
+    </label>
+
+    <button class="btn btn-primary btn-begin" id="btn-begin" disabled>Begin Quiz</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="progress-area">
+      <div class="progress-meta">
+        <span class="progress-question" id="progress-question">Question 1 of 52</span>
+        <span class="progress-section" id="progress-section">Section 1</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="question-text" id="question-text"></div>
+    <ul class="options-list" id="options-list"></ul>
+    <button class="btn btn-primary btn-next" id="btn-next" disabled>Next</button>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="screen" id="screen-results">
+    <div class="print-bar">
+      <button class="btn btn-print" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+    <div id="results-content"></div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// EMAILJS CONFIGURATION
+// ============================================================
+//
+// EmailJS lets this quiz send results to an administrator
+// automatically when a candidate completes it — no backend
+// server needed.
+//
+// HOW TO SET UP EMAILJS (from scratch):
+//
+// 1. Go to https://www.emailjs.com and create a free account.
+//
+// 2. CONNECT AN EMAIL SERVICE:
+//    - In the EmailJS dashboard, click "Email Services"
+//    - Click "Add New Service"
+//    - Choose your email provider (Gmail, Outlook, etc.)
+//    - Follow the prompts to connect your account
+//    - Note down the "Service ID" (e.g. "service_abc123")
+//      → This is your EMAILJS_SERVICE_ID below
+//
+// 3. CREATE AN EMAIL TEMPLATE:
+//    - In the dashboard, click "Email Templates"
+//    - Click "Create New Template"
+//    - Set the "To Email" field to: {{admin_email}}
+//    - Set the Subject to something like:
+//      "Quiz Result: {{candidate_name}} — {{pass_fail}}"
+//    - In the body, paste:  {{{results_html}}}
+//      (triple braces so EmailJS renders HTML, not escaped text)
+//    - Save the template
+//    - Note the "Template ID" (e.g. "template_xyz789")
+//      → This is your EMAILJS_TEMPLATE_ID below
+//
+// 4. GET YOUR PUBLIC KEY:
+//    - In the dashboard, go to "Account" → "General"
+//    - Copy the "Public Key"
+//      → This is your EMAILJS_PUBLIC_KEY below
+//
+// 5. Fill in the four values below and you're done.
+//
+// ADMIN_EMAIL is the address that receives every candidate's
+// results. Change it whenever the responsible manager changes.
+//
+// The free EmailJS plan allows 200 emails per month, which
+// is plenty for onboarding quizzes. If you need more, upgrade
+// at https://www.emailjs.com/pricing
+//
+// ============================================================
+
+const EMAILJS_SERVICE_ID  = 'your_service_id';
+const EMAILJS_TEMPLATE_ID = 'your_template_id';
+const EMAILJS_PUBLIC_KEY   = 'your_public_key';
+const ADMIN_EMAIL          = 'your@email.com';
+
+
+// ============================================================
+// GOOGLE SHEET CONFIGURATION
+// ============================================================
+//
+// Every completed quiz is also written as one row to a Google
+// Sheet, via a Google Apps Script Web App that acts as the
+// endpoint. This is independent of EmailJS — either can be
+// left unconfigured without breaking the other.
+//
+// HOW TO SET IT UP:
+//
+// 1. Open the Google Sheet that should collect the results.
+// 2. Extensions → Apps Script.
+// 3. Delete anything in Code.gs and paste in the Code.gs that
+//    ships alongside this file (see APPS_SCRIPT_SETUP.md).
+// 4. Deploy → New deployment → type "Web app".
+//      - Execute as:      Me
+//      - Who has access:  Anyone
+// 5. Copy the Web app URL (it ends in /exec) and paste it below.
+//
+// The URL must end in /exec, NOT /dev — the /dev URL requires
+// a logged-in Google session and will silently fail for
+// candidates.
+//
+// Leave it as 'your_web_app_url' to disable sheet logging.
+//
+// ============================================================
+
+const SHEET_WEBAPP_URL = 'your_web_app_url';
+
+
+// ============================================================
+// QUESTION BANK
+// ============================================================
+//
+// HOW TO EDIT QUESTIONS:
+//
+// Each question is an object in the array below. Here is what
+// each field means:
+//
+//   id:          The question number (1–52). Keep these sequential.
+//   section:     Which section this question belongs to:
+//                  1 = The Rules of South Africa (questions 1–15)
+//                  2 = What Melsoft Is and What You Sell (questions 16–30)
+//                  3 = The Four People You Sell To (questions 31–45)
+//                  4 = Mixed — Playbook, Mailers, Metrics and Reporting (questions 46–52)
+//   question:    The question text the candidate sees.
+//   options:     An object with keys A, B, C, D — the four answer choices.
+//   correct:     The letter of the correct answer: "A", "B", "C", or "D".
+//   explanation: A one-line explanation shown on the review screen
+//                after the quiz ends. Explains WHY the correct answer is right.
+//
+// TO ADD A QUESTION:
+//   Copy an existing question block, paste it at the end (or in
+//   the correct section position), and update all fields. Make
+//   sure the id is the next number in sequence.
+//
+// TO EDIT A QUESTION:
+//   Find it by its id number and change the fields you need.
+//
+// TO REPLACE THE ENTIRE BANK:
+//   Delete everything between the [ ] brackets and paste in
+//   the new set. Keep the same object structure for each entry.
+//
+// IMPORTANT:
+//   - Every question MUST have exactly 4 options (A, B, C, D)
+//   - The "correct" field must be one of: "A", "B", "C", "D"
+//   - Keep the comma after each closing } except the very last one
+//   - Section numbers must match: 1–15 → section 1, 16–30 → section 2,
+//     31–45 → section 3, 46–52 → section 4
+//
+// ============================================================
+
+const QUESTIONS = [
+  // ---- SECTION 1: The Rules of South Africa (Questions 1–15) ----
+  {
+    id: 1,
+    section: 1,
+    question: "A company’s annual payroll is R450,000. What is its Skills Development Levy obligation?",
+    options: {
+      A: "1% of payroll, paid monthly",
+      B: "1% of payroll, paid annually",
+      C: "Nothing — it falls below the threshold",
+      D: "6% of payroll"
+    },
+    correct: "C",
+    explanation: "Companies with annual payroll below R500,000 are exempt from SDL — R450,000 falls below the threshold."
+  },
+  {
+    id: 2,
+    section: 1,
+    question: "A retailer wants its mandatory grant back from W&RSETA. What must it submit, and by when?",
+    options: {
+      A: "A WSP and ATR by end of April",
+      B: "A WSP and ATR by 30 June",
+      C: "An EE report by end of April",
+      D: "A discretionary grant application by 31 March"
+    },
+    correct: "A",
+    explanation: "The WSP (Workplace Skills Plan) and ATR (Annual Training Report) must be submitted to the SETA by the end of April each year to claim the mandatory grant."
+  },
+  {
+    id: 3,
+    section: 1,
+    question: "The SASBO GenAI programme was funded through which mechanism?",
+    options: {
+      A: "A BANKSETA mandatory grant",
+      B: "An INSETA discretionary grant",
+      C: "Section 12H tax deductions",
+      D: "The companies’ own 6% skills budgets"
+    },
+    correct: "B",
+    explanation: "The SASBO GenAI programme was funded through an INSETA discretionary grant, not mandatory grants or tax deductions."
+  },
+  {
+    id: 4,
+    section: 1,
+    question: "A buyer says: “Our provider delivers an NQF 5 qualification with a SAQA number, so we’re fine after 1 July.” What is the flaw in that reasoning?",
+    options: {
+      A: "NQF 5 is too low for B-BBEE recognition",
+      B: "SAQA numbers expire annually",
+      C: "A SAQA number proves the qualification is registered, but only QCTO occupational qualifications carry full recognition after 1 July — a legacy qualification can have a SAQA number and still lose value",
+      D: "There is no flaw — they are correct"
+    },
+    correct: "C",
+    explanation: "A SAQA number confirms registration but does not guarantee full recognition post-1 July — only QCTO occupational qualifications carry that assurance."
+  },
+  {
+    id: 5,
+    section: 1,
+    question: "After 30 June 2026, what happens to learners already enrolled on legacy qualifications versus new enrolments?",
+    options: {
+      A: "Both are immediately invalid",
+      B: "No new learners may be enrolled on legacy qualifications; the cutoff targets new enrolments",
+      C: "Existing learners must re-enrol under QCTO",
+      D: "Nothing changes until 2027"
+    },
+    correct: "B",
+    explanation: "The cutoff targets new enrolments — no new learners may start legacy qualifications after the deadline, but existing learners continue under their current enrolment."
+  },
+  {
+    id: 6,
+    section: 1,
+    question: "On the B-BBEE scorecard, which combination correctly lists the three priority elements?",
+    options: {
+      A: "Ownership, Management Control, Skills Development",
+      B: "Skills Development, ESD, Socio-Economic Development",
+      C: "Ownership, Skills Development, Enterprise & Supplier Development",
+      D: "Management Control, ESD, Skills Development"
+    },
+    correct: "C",
+    explanation: "The three priority elements are Ownership, Skills Development, and Enterprise & Supplier Development — underperformance on any one triggers a level drop."
+  },
+  {
+    id: 7,
+    section: 1,
+    question: "What is the consequence of scoring below 40% of available points on any one priority element?",
+    options: {
+      A: "A fine of up to 10% of turnover",
+      B: "Automatic drop of one B-BBEE level regardless of overall score",
+      C: "Loss of the EE Compliance Certificate",
+      D: "Disqualification from SETA grants"
+    },
+    correct: "B",
+    explanation: "Scoring below 40% on any single priority element triggers an automatic one-level drop on the B-BBEE scorecard regardless of the overall points total."
+  },
+  {
+    id: 8,
+    section: 1,
+    question: "A company has a R20 billion wage bill and pays roughly R200 million in SDL. Why is its actual training spend target approximately R1.2 billion?",
+    options: {
+      A: "SETAs require a 6x matching contribution",
+      B: "The B-BBEE Skills Development target is roughly 6% of payroll — the 1% levy covers only a fraction of it",
+      C: "Verification agencies multiply claims by 6",
+      D: "The EE Act mandates 6% of turnover on training"
+    },
+    correct: "B",
+    explanation: "The B-BBEE Skills Development target is roughly 6% of payroll — the 1% SDL covers only a small fraction of the actual spend companies need to hit for scorecard purposes."
+  },
+  {
+    id: 9,
+    section: 1,
+    question: "A verification agency discounts a client’s claimed training spend. Which two factors most commonly trigger this?",
+    options: {
+      A: "Late WSP submission and missing tax clearance",
+      B: "Training under qualifications without full recognition, and learners who did not finish",
+      C: "Training delivered online and training delivered by QSEs",
+      D: "Spending above 6% of payroll and unregistered facilitators"
+    },
+    correct: "B",
+    explanation: "Verification agencies most commonly discount spend when training was under qualifications without full recognition or when learners did not complete — both waste the claimed investment."
+  },
+  {
+    id: 10,
+    section: 1,
+    question: "To qualify as an ESD beneficiary, a business must be:",
+    options: {
+      A: "Level 1 B-BBEE with revenue under R100 million",
+      B: "At least 51% black-owned with revenue under R50 million",
+      C: "100% black female youth-owned, any revenue",
+      D: "QCTO-accredited with at least 50 employees"
+    },
+    correct: "B",
+    explanation: "ESD beneficiary status requires at least 51% black ownership and annual revenue under R50 million."
+  },
+  {
+    id: 11,
+    section: 1,
+    question: "A corporate buys training from Melsoft and also invests in Melsoft’s growth. Which three scorecard categories can that single relationship touch?",
+    options: {
+      A: "Ownership, Skills Development, and SED",
+      B: "Skills Development, Preferential Procurement, and Supplier Development",
+      C: "Management Control, Skills Development, and Enterprise Development",
+      D: "Skills Development, SED, and Preferential Procurement"
+    },
+    correct: "B",
+    explanation: "Training counts under Skills Development, buying from Melsoft counts under Preferential Procurement, and investing in Melsoft’s growth counts under Supplier Development."
+  },
+  {
+    id: 12,
+    section: 1,
+    question: "Which statement about the ESD angle is consistent with the manual’s rules?",
+    options: {
+      A: "Lead with it in Email 1 to Transformation heads",
+      B: "Raise it in the first meeting only with CHROs",
+      C: "Never sell it in the first meeting — it belongs in the second or third conversation, after the training relationship exists",
+      D: "Only Larreth may ever mention it"
+    },
+    correct: "C",
+    explanation: "The ESD angle is a second- or third-conversation topic — never raise it in the first meeting; only after the training relationship is established."
+  },
+  {
+    id: 13,
+    section: 1,
+    question: "Why is 2026 specifically the year EE became dangerous for clients?",
+    options: {
+      A: "The EE Act was passed in 2026",
+      B: "2025 was the baseline reporting year; 2026 is the first year companies are measured against hard sector targets, with fines up to 10% of turnover",
+      C: "The Constitutional Court struck down the targets in March 2026",
+      D: "The EE Compliance Certificate requirement lapsed"
+    },
+    correct: "B",
+    explanation: "2025 established the baseline; 2026 is the first year companies face actual measurement against hard sector targets, with penalties up to 10% of turnover for non-compliance."
+  },
+  {
+    id: 14,
+    section: 1,
+    question: "A client asks whether you can guarantee their learnership qualifies for the Section 12H tax deduction. The correct answer is:",
+    options: {
+      A: "Yes — every registered learnership qualifies automatically",
+      B: "Learnerships may qualify for 12H; your finance team should confirm — tax rules carry expiry dates",
+      C: "12H only applies to QCTO qualifications, so yes",
+      D: "12H was abolished in 2025"
+    },
+    correct: "B",
+    explanation: "Learnerships may qualify for the Section 12H deduction, but tax rules carry expiry dates — the client’s finance team must confirm current eligibility rather than relying on a BDM’s guarantee."
+  },
+  {
+    id: 15,
+    section: 1,
+    question: "A company hires double its YES target and retains at least 5% of the youth permanently, but remains weak on its priority elements. What is the outcome?",
+    options: {
+      A: "Two-level jump regardless",
+      B: "One-level jump only",
+      C: "No level-up — YES requires the company to already be performing reasonably on priority elements",
+      D: "A fine under the EE Act"
+    },
+    correct: "C",
+    explanation: "The YES level-up requires the company to already be performing reasonably on its priority elements — doubling the YES target alone is not enough if fundamentals are weak."
+  },
+
+  // ---- SECTION 2: What Melsoft Is and What You Sell (Questions 16–30) ----
+  {
+    id: 16,
+    section: 2,
+    question: "Which three credentials does the manual call the ones that matter most?",
+    options: {
+      A: "QCTO accreditation; Level 1 B-BBEE, 100% black female youth-owned; 92% completion",
+      B: "SETA accreditation; Level 2 B-BBEE; 84% placement",
+      C: "SAQA registration; NCR registration; 92% completion",
+      D: "QCTO accreditation; ISO certification; 135% recognition"
+    },
+    correct: "A",
+    explanation: "The three credentials that matter most are QCTO accreditation, Level 1 B-BBEE status (100% black female youth-owned), and the 92% completion rate."
+  },
+  {
+    id: 17,
+    section: 2,
+    question: "Melsoft’s catalogue spans:",
+    options: {
+      A: "92 programmes across six industries",
+      B: "124 programmes across nine industries",
+      C: "150 programmes across nine industries",
+      D: "124 programmes across twelve industries"
+    },
+    correct: "B",
+    explanation: "Melsoft offers 124 programmes across nine industries."
+  },
+  {
+    id: 18,
+    section: 2,
+    question: "According to the manual, the gamified platform’s real function is:",
+    options: {
+      A: "Marketing differentiation for younger learners",
+      B: "Making training enjoyable so clients renew",
+      C: "Making falling behind visible early so facilitators intervene before dropout — it is the machine that produces the 92%",
+      D: "Generating leaderboard data for verification packs"
+    },
+    correct: "C",
+    explanation: "The platform’s real function is early-warning visibility — it surfaces learners falling behind so facilitators intervene before dropout, which is the engine behind the 92% completion rate."
+  },
+  {
+    id: 19,
+    section: 2,
+    question: "Complete the proof story: “We recently completed an INSETA-funded programme across Old Mutual, Standard Bank, Nedbank, Absa, FNB and Santam — ___”",
+    options: {
+      A: "250 learners, 92% completion, against an industry average of about 32%",
+      B: "150 learners, 92% completion, against an industry average of about 32%",
+      C: "150 learners, 84% completion, against an industry average of about 30%",
+      D: "100 learners, 92% completion, against an industry average of about 25%"
+    },
+    correct: "B",
+    explanation: "The proof story is 150 learners at 92% completion against an industry average of about 32% — across six major financial institutions."
+  },
+  {
+    id: 20,
+    section: 2,
+    question: "The core mechanic of the Proof Run is:",
+    options: {
+      A: "A free pilot for 10 learners",
+      B: "The client pays upfront and is refunded for dropouts",
+      C: "The client only pays for learners who complete — non-completers are simply not invoiced",
+      D: "Melsoft matches the client’s SETA grant rand-for-rand"
+    },
+    correct: "C",
+    explanation: "The Proof Run means the client only pays for learners who complete — non-completers are simply not invoiced, shifting the completion risk to Melsoft."
+  },
+  {
+    id: 21,
+    section: 2,
+    question: "A prospect asks what it costs on a first call. Per the manual, you:",
+    options: {
+      A: "Quote the rate card immediately",
+      B: "Never discuss cost on calls — and when the topic arises, the word is “investment”, never “price”",
+      C: "Say it depends on B-BBEE level",
+      D: "Refer them to Patience"
+    },
+    correct: "B",
+    explanation: "Never discuss cost on calls — when the topic comes up, the word is always ‘investment’, never ‘price’."
+  },
+  {
+    id: 22,
+    section: 2,
+    question: "What is the one thing a BDM sells?",
+    options: {
+      A: "The Proof Run itself",
+      B: "Learnership cohorts",
+      C: "A discovery call to establish whether the Proof Run fits their team",
+      D: "The verification documentation pack"
+    },
+    correct: "C",
+    explanation: "A BDM sells exactly one thing: a discovery call to establish whether the Proof Run fits the prospect’s team. Everything else follows from there."
+  },
+  {
+    id: 23,
+    section: 2,
+    question: "The 3-line brief you prepare before a discovery call contains:",
+    options: {
+      A: "Company revenue, B-BBEE level, SETA",
+      B: "Who they are, what they reacted to, any landmines",
+      C: "Persona, title, mobile number",
+      D: "Pain, budget, timeline"
+    },
+    correct: "B",
+    explanation: "The 3-line brief covers who the prospect is, what they reacted to (which email, which topic), and any landmines to be aware of."
+  },
+  {
+    id: 24,
+    section: 2,
+    question: "When a conversation wobbles, the manual says you return to which sentence?",
+    options: {
+      A: "“We’re Level 1 and black female youth-owned”",
+      B: "“You only pay for the ones who finish”",
+      C: "“Does your training plan survive 1 July?”",
+      D: "“We complete at 92%”"
+    },
+    correct: "B",
+    explanation: "When a conversation wobbles, the anchor sentence is: ‘You only pay for the ones who finish.’ It resets the frame to Melsoft’s core differentiator."
+  },
+  {
+    id: 25,
+    section: 2,
+    question: "Who leads the discovery call?",
+    options: {
+      A: "Always Larreth",
+      B: "Always the BDM who booked it",
+      C: "Sometimes Larreth, sometimes the BDM, sometimes both — the conversation matters, not who is in the room",
+      D: "The most senior persona on the client side decides"
+    },
+    correct: "C",
+    explanation: "Discovery calls may be led by Larreth, the BDM, or both — the conversation matters, not who is in the room."
+  },
+  {
+    id: 26,
+    section: 2,
+    question: "Why does the manual say Melsoft is the only provider in the country making the Proof Run offer?",
+    options: {
+      A: "No other provider is QCTO-accredited",
+      B: "No other provider carries the completion risk instead of the client — others invoice for quitters",
+      C: "It is protected intellectual property",
+      D: "SETAs prohibit other providers from doing it"
+    },
+    correct: "B",
+    explanation: "Melsoft is unique because no other provider carries the completion risk — every other provider invoices for all enrolled learners, including those who drop out."
+  },
+  {
+    id: 27,
+    section: 2,
+    question: "Which programme types does the manual identify as Melsoft’s most valuable?",
+    options: {
+      A: "Solar installation and logistics",
+      B: "Retail and management",
+      C: "AI software development and cybersecurity",
+      D: "Creator economy and design"
+    },
+    correct: "C",
+    explanation: "AI software development and cybersecurity are identified as Melsoft’s most valuable programme types."
+  },
+  {
+    id: 28,
+    section: 2,
+    question: "“Cybersecurity Analyst, NQF 5, SAQA 118986” — what does this string let you claim with full confidence?",
+    options: {
+      A: "The qualification earns 135% recognition",
+      B: "It is a real, nationally registered qualification at skilled-professional level",
+      C: "It is exempt from verification scrutiny",
+      D: "It carries a guaranteed 12H deduction"
+    },
+    correct: "B",
+    explanation: "The SAQA number and NQF level confirm it is a real, nationally registered qualification at skilled-professional level — nothing more, nothing less."
+  },
+  {
+    id: 29,
+    section: 2,
+    question: "After booking a discovery call, the BDM’s job is to ensure the Melsoft side walks in:",
+    options: {
+      A: "With a full proposal deck",
+      B: "With pricing pre-approved",
+      C: "Knowing more about the account than the prospect expects",
+      D: "With the contract drafted"
+    },
+    correct: "C",
+    explanation: "After booking, the BDM’s job is preparation — ensuring the Melsoft side walks in knowing more about the account than the prospect expects."
+  },
+  {
+    id: 30,
+    section: 2,
+    question: "Melsoft Academy is headquartered in:",
+    options: {
+      A: "Sandton CBD",
+      B: "Rosebank, Johannesburg",
+      C: "Braamfontein",
+      D: "Centurion"
+    },
+    correct: "B",
+    explanation: "Melsoft Academy is headquartered in Rosebank, Johannesburg."
+  },
+
+  // ---- SECTION 3: The Four People You Sell To (Questions 31–45) ----
+  {
+    id: 31,
+    section: 3,
+    question: "“Head of Capability” and “Head of Academy” are title variants for which persona?",
+    options: {
+      A: "CHRO",
+      B: "Transformation",
+      C: "L&D",
+      D: "CIO"
+    },
+    correct: "C",
+    explanation: "‘Head of Capability’ and ‘Head of Academy’ are title variants that fall under the L&D persona."
+  },
+  {
+    id: 32,
+    section: 3,
+    question: "The L&D head’s deepest pain, in one picture, is:",
+    options: {
+      A: "Discounted spend at verification",
+      B: "Buying training for 100, being invoiced for 100, around 32 finishing — then presenting those numbers with their name on the slide",
+      C: "Failing the EE assessment",
+      D: "A security breach post-mortem"
+    },
+    correct: "B",
+    explanation: "The L&D head’s deepest pain is personal accountability for poor completion — buying 100 seats, paying for 100, seeing ~32 finish, then presenting that failure with their name on it."
+  },
+  {
+    id: 33,
+    section: 3,
+    question: "What must you never lead with when contacting the L&D head?",
+    options: {
+      A: "The 92% vs 32%",
+      B: "The Proof Run",
+      C: "B-BBEE scorecard talk",
+      D: "The leaderboard model"
+    },
+    correct: "C",
+    explanation: "Never lead with B-BBEE scorecard talk for the L&D head — they buy training outcomes and learner success, not compliance points."
+  },
+  {
+    id: 34,
+    section: 3,
+    question: "An L&D head says “we already have a provider.” The manual’s scripted response raises which two questions?",
+    options: {
+      A: "Their provider’s price and their completion rate",
+      B: "Whether the provider’s qualifications still count after 1 July, and whether they are paying for non-completers",
+      C: "Their B-BBEE level and their SETA",
+      D: "Their WSP deadline and their EE targets"
+    },
+    correct: "B",
+    explanation: "The scripted counter to ‘we have a provider’ raises two doubts: whether their qualifications survive 1 July, and whether they’re paying for learners who never finish."
+  },
+  {
+    id: 35,
+    section: 3,
+    question: "“Skills Development Facilitator (SDF)” is a title under which persona?",
+    options: {
+      A: "L&D",
+      B: "Transformation / B-BBEE",
+      C: "CHRO",
+      D: "CIO"
+    },
+    correct: "B",
+    explanation: "The Skills Development Facilitator (SDF) sits under the Transformation / B-BBEE persona, not L&D."
+  },
+  {
+    id: 36,
+    section: 3,
+    question: "For the Transformation head, the 92% completion rate should be framed as:",
+    options: {
+      A: "Gamification excellence",
+      B: "Learner satisfaction",
+      C: "Audit protection — claims that survive verification",
+      D: "Placement success"
+    },
+    correct: "C",
+    explanation: "For the Transformation persona, 92% completion is framed as audit protection — it means the training claims will survive verification scrutiny."
+  },
+  {
+    id: 37,
+    section: 3,
+    question: "Which item is NOT one of the gifts the manual counts for the Transformation persona?",
+    options: {
+      A: "135% recognition",
+      B: "QCTO-registered qualifications",
+      C: "A pre-built verification documentation pack per learner",
+      D: "A guaranteed two-level YES jump"
+    },
+    correct: "D",
+    explanation: "A guaranteed two-level YES jump is not one of the gifts — the YES level-up depends on the company’s performance on priority elements, so it cannot be guaranteed."
+  },
+  {
+    id: 38,
+    section: 3,
+    question: "The CHRO’s three fires in 2026 are:",
+    options: {
+      A: "EE first measurement year, the QCTO change, verification scrutiny",
+      B: "Skills shortage, resignations, breaches",
+      C: "WSP deadline, YES targets, 12H expiry",
+      D: "B-BBEE drop, NCR registration, EE fines"
+    },
+    correct: "A",
+    explanation: "The CHRO’s three fires in 2026 are the first EE measurement year (with real fines), the QCTO qualification transition, and increasing verification scrutiny."
+  },
+  {
+    id: 39,
+    section: 3,
+    question: "Which statistic does the manual call the CHRO’s favourite, to be used deliberately?",
+    options: {
+      A: "135% recognition",
+      B: "The 92% placement rate",
+      C: "The 32% industry completion average",
+      D: "The R1.2 billion training gap"
+    },
+    correct: "B",
+    explanation: "The manual identifies the 92% placement rate as the CHRO’s favourite statistic — it should be deployed deliberately in CHRO conversations."
+  },
+  {
+    id: 40,
+    section: 3,
+    question: "A CHRO says “talk to our L&D team.” The correct play is:",
+    options: {
+      A: "Comply and drop the CHRO thread",
+      B: "Refuse — the CHRO is the decision-maker",
+      C: "Agree to engage L&D, but hold the CHRO thread open by anchoring on EE assessment and the scorecard — the part the board asks about",
+      D: "Escalate to Larreth immediately"
+    },
+    correct: "C",
+    explanation: "Agree to engage L&D but keep the CHRO thread alive by anchoring on EE and the scorecard — the board-level concern that only the CHRO owns."
+  },
+  {
+    id: 41,
+    section: 3,
+    question: "Why is opening a CIO conversation with B-BBEE a mistake?",
+    options: {
+      A: "CIOs resent compliance laws",
+      B: "The CIO buys capability from their own budget, not compliance — scorecard talk gets you forwarded to HR within the hour",
+      C: "CIOs do not control any budget",
+      D: "B-BBEE does not apply to technology spend"
+    },
+    correct: "B",
+    explanation: "CIOs buy capability from their own budget, not compliance — leading with B-BBEE gets you forwarded to HR within the hour."
+  },
+  {
+    id: 42,
+    section: 3,
+    question: "A CIO replies: “Training sits with our people team — speak to them.” The manual calls this:",
+    options: {
+      A: "A dead end — park the account",
+      B: "A stall tactic to overcome on the same call",
+      C: "A victory — get the name, open with “Your CIO suggested I speak to you,” and log the referral in Pipedrive",
+      D: "A signal to switch to the Transformation persona"
+    },
+    correct: "C",
+    explanation: "A CIO referral to HR is a victory — get the name, open your next call with ‘Your CIO suggested I speak to you,’ and log the referral in Pipedrive."
+  },
+  {
+    id: 43,
+    section: 3,
+    question: "A CIO says they use Pluralsight and an internal academy. The scripted counter is built on which claim?",
+    options: {
+      A: "Libraries are more expensive per seat",
+      B: "Self-paced libraries are exactly where the 32% completion figure comes from — ours is live, gamified, cohort-based, certified, and unfinished learners are not paid for",
+      C: "Internal academies do not carry SAQA numbers",
+      D: "Internal academies violate QCTO rules"
+    },
+    correct: "B",
+    explanation: "The counter: self-paced libraries are exactly where the 32% completion rate comes from — Melsoft’s model is live, gamified, cohort-based, certified, and non-completers are free."
+  },
+  {
+    id: 44,
+    section: 3,
+    question: "On the cheat sheet, the Proof Run line for the Transformation persona is:",
+    options: {
+      A: "“Pay only for finishers”",
+      B: "“The pipeline that’s real”",
+      C: "“Non-completers: off the invoice, off the audit file”",
+      D: "“Certify your own people — risk on us”"
+    },
+    correct: "C",
+    explanation: "The Transformation persona’s Proof Run line is ‘Non-completers: off the invoice, off the audit file’ — tying completion risk to audit protection."
+  },
+  {
+    id: 45,
+    section: 3,
+    question: "Per the cheat sheet, what should you never open with for the CHRO?",
+    options: {
+      A: "Anything B-BBEE",
+      B: "Programme detail",
+      C: "Platform fun",
+      D: "Scorecard jargon"
+    },
+    correct: "B",
+    explanation: "Never open with programme detail for the CHRO — lead with strategic, board-level pain points; programme specifics come later."
+  },
+
+  // ---- SECTION 4: Mixed — Playbook, Mailers, Metrics and Reporting (Questions 46–52) ----
+  {
+    id: 46,
+    section: 4,
+    question: "Under the updated calling rule, the one hard “no” is:",
+    options: {
+      A: "Never call before 8:30am",
+      B: "Never call someone who has not opened an email yet",
+      C: "Never call someone who has not even been emailed yet — every emailed contact is callable",
+      D: "Never call the same contact twice in one week"
+    },
+    correct: "C",
+    explanation: "The one hard rule: never call someone who has not been emailed yet. But once they’ve been emailed, every contact is callable regardless of whether they opened it."
+  },
+  {
+    id: 47,
+    section: 4,
+    question: "An email open decides what, exactly, under the updated calling rule?",
+    options: {
+      A: "Whether the contact is callable for the first time",
+      B: "When you call, not whether — openers are Tier 1 and get called immediately, today",
+      C: "That an automatic WhatsApp should be triggered first",
+      D: "That the account moves out of parked status"
+    },
+    correct: "B",
+    explanation: "An email open determines priority timing, not callability — openers are Tier 1 and get called immediately that day."
+  },
+  {
+    id: 48,
+    section: 4,
+    question: "Email 1 was delivered to a Transformation head on Monday. By Thursday there is still no open. The correct move is:",
+    options: {
+      A: "Wait for the Day 5 email before making any call",
+      B: "Park the contact until the breakup email",
+      C: "Call as a warm follow-up — “I sent you a note earlier this week, wanted to make sure it didn’t get buried” — because the email itself provides the context",
+      D: "Re-send Email 1 from a different mailbox"
+    },
+    correct: "C",
+    explanation: "No open by Thursday still warrants a call — the email provides context for a warm follow-up: ‘I sent you a note earlier this week, wanted to make sure it didn’t get buried.’"
+  },
+  {
+    id: 49,
+    section: 4,
+    question: "The three performance metrics and their targets are:",
+    options: {
+      A: "30–40 calls per day; 5 appointments booked per week; 3–5 new accounts opened per week",
+      B: "20–30 calls per day; 3 appointments per week; 5–10 new accounts per week",
+      C: "40–50 calls per day; 5 appointments per month; 15 accounts at a time",
+      D: "30–40 calls per week; 5 appointments per week; 3–5 new accounts per month"
+    },
+    correct: "A",
+    explanation: "The three targets: 30–40 calls per day, 5 appointments booked per week, and 3–5 new accounts opened per week."
+  },
+  {
+    id: 50,
+    section: 4,
+    question: "An account counts as “opened” on the day:",
+    options: {
+      A: "Any persona replies to Email 1",
+      B: "The rep sends Email 1 to all four personas at the company for the first time",
+      C: "The first discovery call is booked",
+      D: "The account is loaded into Pipedrive"
+    },
+    correct: "B",
+    explanation: "An account is ‘opened’ on the day the rep sends Email 1 to all four personas at the company for the first time."
+  },
+  {
+    id: 51,
+    section: 4,
+    question: "A rep makes 38 calls a day all week but books only 1 appointment. Per the Monday review logic, this points to:",
+    options: {
+      A: "A discipline problem — performance management conversation",
+      B: "A copy or offer problem — a system issue the team fixes together",
+      C: "A connect-rate problem — switch to LinkedIn only",
+      D: "Bad luck — no action needed"
+    },
+    correct: "B",
+    explanation: "High call volume but low appointments points to a copy or offer problem — a system issue the team diagnoses and fixes together, not a discipline problem."
+  },
+  {
+    id: 52,
+    section: 4,
+    question: "Which statement about daily Discord reporting is correct?",
+    options: {
+      A: "Reps post only on days when targets are hit",
+      B: "The post is optional if numbers are already in Pipedrive",
+      C: "Posting is daily with no exceptions — if you worked today, you post today, and a missing post is treated as a missed day",
+      D: "Reports are posted weekly before the Monday review"
+    },
+    correct: "C",
+    explanation: "Discord reporting is daily with no exceptions — if you worked, you post. A missing post is treated as a missed day."
+  }
+];
+
+
+// ============================================================
+// SECTION DEFINITIONS
+// ============================================================
+const SECTIONS = {
+  1: { name: "Section 1: The Rules of South Africa", total: 15 },
+  2: { name: "Section 2: What Melsoft Is and What You Sell", total: 15 },
+  3: { name: "Section 3: The Four People You Sell To", total: 15 },
+  4: { name: "Section 4: Mixed — Playbook, Mailers, Metrics & Reporting", total: 7 }
+};
+
+const PASS_THRESHOLD = 42;
+const TOTAL_TIME_MS = 45 * 60 * 1000;
+const WARNING_MS = 10 * 60 * 1000;
+const DANGER_MS = 5 * 60 * 1000;
+
+// ============================================================
+// APPLICATION STATE
+// ============================================================
+let currentIndex = 0;
+let answers = {};
+let startTimestamp = null;
+let timerInterval = null;
+let quizActive = false;
+let fiveMinToastShown = false;
+let emailSent = false;
+let candidateName = '';
+let quizDate = '';
+
+// ============================================================
+// DOM REFERENCES
+// ============================================================
+const $startScreen  = document.getElementById('screen-start');
+const $quizScreen   = document.getElementById('screen-quiz');
+const $resultScreen = document.getElementById('screen-results');
+const $timer        = document.getElementById('timer');
+const $toast        = document.getElementById('toast');
+const $nameInput    = document.getElementById('candidate-name');
+const $dateInput    = document.getElementById('quiz-date');
+const $confirmBox   = document.getElementById('confirm-rules');
+const $beginBtn     = document.getElementById('btn-begin');
+const $questionText = document.getElementById('question-text');
+const $optionsList  = document.getElementById('options-list');
+const $nextBtn      = document.getElementById('btn-next');
+const $progressQ    = document.getElementById('progress-question');
+const $progressS    = document.getElementById('progress-section');
+const $progressBar  = document.getElementById('progress-bar');
+const $resultsContent = document.getElementById('results-content');
+
+// ============================================================
+// INIT
+// ============================================================
+(function init() {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  $dateInput.value = `${yyyy}-${mm}-${dd}`;
+
+  $confirmBox.addEventListener('change', validateStart);
+  $nameInput.addEventListener('input', validateStart);
+  $beginBtn.addEventListener('click', beginQuiz);
+  $nextBtn.addEventListener('click', nextQuestion);
+})();
+
+function validateStart() {
+  const nameOk = $nameInput.value.trim().length > 0;
+  const confirmed = $confirmBox.checked;
+  $beginBtn.disabled = !(nameOk && confirmed);
+}
+
+// ============================================================
+// BEFOREUNLOAD PROTECTION
+// ============================================================
+window.addEventListener('beforeunload', function(e) {
+  if (quizActive) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+// ============================================================
+// BEGIN QUIZ
+// ============================================================
+function beginQuiz() {
+  candidateName = $nameInput.value.trim();
+  quizDate = $dateInput.value;
+  currentIndex = 0;
+  answers = {};
+  emailSent = false;
+  fiveMinToastShown = false;
+
+  showScreen('quiz');
+  $timer.style.display = '';
+  startTimestamp = Date.now();
+  quizActive = true;
+
+  timerInterval = setInterval(tickTimer, 250);
+  renderQuestion();
+}
+
+// ============================================================
+// TIMER — timestamp-based, immune to background-tab throttling
+// ============================================================
+function tickTimer() {
+  const elapsed = Date.now() - startTimestamp;
+  const remaining = Math.max(0, TOTAL_TIME_MS - elapsed);
+
+  const totalSec = Math.ceil(remaining / 1000);
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  $timer.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+
+  $timer.classList.remove('warning', 'danger');
+  if (remaining <= DANGER_MS) {
+    $timer.classList.add('danger');
+  } else if (remaining <= WARNING_MS) {
+    $timer.classList.add('warning');
+  }
+
+  if (remaining <= DANGER_MS && !fiveMinToastShown) {
+    fiveMinToastShown = true;
+    showToast();
+  }
+
+  if (remaining <= 0) {
+    endQuiz(true);
+  }
+}
+
+function showToast() {
+  $toast.classList.add('show');
+  setTimeout(() => $toast.classList.remove('show'), 5000);
+}
+
+// ============================================================
+// RENDER QUESTION
+// ============================================================
+function renderQuestion() {
+  const q = QUESTIONS[currentIndex];
+  const sectionInfo = SECTIONS[q.section];
+
+  $progressQ.textContent = `Question ${currentIndex + 1} of ${QUESTIONS.length}`;
+  $progressS.textContent = sectionInfo.name.split(':')[0];
+  $progressBar.style.width = `${((currentIndex) / QUESTIONS.length) * 100}%`;
+
+  $questionText.textContent = q.question;
+
+  $optionsList.innerHTML = '';
+  ['A','B','C','D'].forEach(letter => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.type = 'button';
+    btn.innerHTML = `<span class="option-letter">${letter}</span><span class="option-text">${q.options[letter]}</span>`;
+    btn.addEventListener('click', () => selectOption(letter));
+    li.appendChild(btn);
+    $optionsList.appendChild(li);
+  });
+
+  $nextBtn.disabled = true;
+  $nextBtn.textContent = currentIndex === QUESTIONS.length - 1 ? 'Finish' : 'Next';
+}
+
+function selectOption(letter) {
+  answers[QUESTIONS[currentIndex].id] = letter;
+  const buttons = $optionsList.querySelectorAll('.option-btn');
+  buttons.forEach((btn, i) => {
+    btn.classList.toggle('selected', ['A','B','C','D'][i] === letter);
+  });
+  $nextBtn.disabled = false;
+}
+
+// ============================================================
+// NEXT / FINISH
+// ============================================================
+function nextQuestion() {
+  if (currentIndex < QUESTIONS.length - 1) {
+    currentIndex++;
+    renderQuestion();
+    window.scrollTo(0, 0);
+  } else {
+    endQuiz(false);
+  }
+}
+
+// ============================================================
+// END QUIZ
+// ============================================================
+function endQuiz(timedOut) {
+  quizActive = false;
+  clearInterval(timerInterval);
+  $timer.style.display = 'none';
+
+  const endTimestamp = Date.now();
+  const elapsedMs = timedOut ? TOTAL_TIME_MS : (endTimestamp - startTimestamp);
+
+  const answeredCount = Object.keys(answers).length;
+
+  let totalCorrect = 0;
+  const sectionScores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+  QUESTIONS.forEach(q => {
+    const given = answers[q.id] || null;
+    if (given === q.correct) {
+      totalCorrect++;
+      sectionScores[q.section]++;
+    }
+  });
+
+  const pct = Math.round((totalCorrect / QUESTIONS.length) * 100);
+  const passed = totalCorrect >= PASS_THRESHOLD;
+
+  const timeTakenMin = Math.floor(elapsedMs / 60000);
+  const timeTakenSec = Math.floor((elapsedMs % 60000) / 1000);
+  const timeTakenStr = `${timeTakenMin}m ${timeTakenSec}s`;
+
+  renderResults({
+    timedOut,
+    answeredCount,
+    totalCorrect,
+    pct,
+    passed,
+    sectionScores,
+    timeTakenStr
+  });
+
+  showScreen('results');
+  window.scrollTo(0, 0);
+
+  if (!emailSent) {
+    emailSent = true;
+    const payload = {
+      timedOut,
+      answeredCount,
+      totalCorrect,
+      pct,
+      passed,
+      sectionScores,
+      timeTakenStr
+    };
+    sendResultsEmail(payload);
+    sendResultsToSheet(payload);
+  }
+}
+
+// ============================================================
+// RENDER RESULTS
+// ============================================================
+function getSectionInterpretation(section, score) {
+  if (section === 4) {
+    if (score === 7) return { text: "Clean", cls: "interp-green" };
+    if (score >= 5) return { text: "Review the updated rules", cls: "interp-orange" };
+    return { text: "Re-study Parts 4–7", cls: "interp-red" };
+  }
+  if (score >= 14) return { text: "Solid — ready to represent this section in the field", cls: "interp-green" };
+  if (score >= 11) return { text: "Review recommended before prospecting", cls: "interp-orange" };
+  if (score >= 8) return { text: "Re-study required — do not prospect until retested", cls: "interp-red" };
+  return { text: "Fundamental gap — full re-read before anything else", cls: "interp-red" };
+}
+
+function renderResults(data) {
+  const { timedOut, answeredCount, totalCorrect, pct, passed, sectionScores, timeTakenStr } = data;
+
+  let html = '';
+
+  html += `<div class="results-header">`;
+  html += `<p class="results-candidate"><strong>${esc(candidateName)}</strong> &mdash; ${formatDate(quizDate)}</p>`;
+
+  if (timedOut) {
+    html += `</div>`;
+    html += `<div class="time-expired-banner">TIME EXPIRED &mdash; ${answeredCount} of ${QUESTIONS.length} questions answered. Unanswered questions scored as incorrect.</div>`;
+    html += `<div class="results-header">`;
+  }
+
+  html += `<div class="score-display" style="color:${passed ? 'var(--green)' : 'var(--red)'}">${totalCorrect}/${QUESTIONS.length}</div>`;
+  html += `<div class="score-pct">${pct}%</div>`;
+  html += passed
+    ? `<div class="pass-badge">PASSED</div>`
+    : `<div class="fail-badge">FAILED</div>`;
+  html += `<p class="time-taken">Time taken: ${timeTakenStr}</p>`;
+  html += `</div>`;
+
+  // Section breakdown
+  html += `<div class="section-breakdown"><h3>Section Breakdown</h3>`;
+  [1,2,3,4].forEach(s => {
+    const score = sectionScores[s];
+    const total = SECTIONS[s].total;
+    const pctBar = Math.round((score / total) * 100);
+    const interp = getSectionInterpretation(s, score);
+    let barColor = 'var(--green)';
+    if (interp.cls === 'interp-orange') barColor = 'var(--orange)';
+    if (interp.cls === 'interp-red') barColor = 'var(--red)';
+
+    html += `<div class="section-card">`;
+    html += `<div class="section-card-header">`;
+    html += `<span class="section-card-name">${SECTIONS[s].name}</span>`;
+    html += `<span class="section-card-score" style="color:${barColor}">${score}/${total}</span>`;
+    html += `</div>`;
+    html += `<div class="section-card-bar"><div class="section-card-bar-fill" style="width:${pctBar}%;background:${barColor}"></div></div>`;
+    html += `<div class="section-interpretation ${interp.cls}">${interp.text}</div>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+
+  // Question-by-question review
+  html += `<div class="review-section"><h3>Question-by-Question Review</h3>`;
+  QUESTIONS.forEach(q => {
+    const given = answers[q.id] || null;
+    const isCorrect = given === q.correct;
+    const wasAnswered = given !== null;
+    let cardClass = 'review-card ';
+    if (!wasAnswered) cardClass += 'unanswered';
+    else if (isCorrect) cardClass += 'correct';
+    else cardClass += 'incorrect';
+
+    html += `<div class="${cardClass}">`;
+    html += `<div class="review-q-num">${SECTIONS[q.section].name} &mdash; Question ${q.id}</div>`;
+    html += `<div class="review-q-text">${esc(q.question)}</div>`;
+
+    if (!wasAnswered) {
+      html += `<p class="review-answer review-unanswered-text">Not answered &mdash; marked incorrect.</p>`;
+    } else if (isCorrect) {
+      html += `<p class="review-answer review-correct-text"><span class="label">Your answer:</span> ${given}. ${esc(q.options[given])} &check;</p>`;
+    } else {
+      html += `<p class="review-answer review-incorrect-text"><span class="label">Your answer:</span> ${given}. ${esc(q.options[given])} &cross;</p>`;
+      html += `<p class="review-answer review-correct-text"><span class="label">Correct answer:</span> ${q.correct}. ${esc(q.options[q.correct])}</p>`;
+    }
+
+    if (!wasAnswered) {
+      html += `<p class="review-answer review-correct-text"><span class="label">Correct answer:</span> ${q.correct}. ${esc(q.options[q.correct])}</p>`;
+    }
+
+    html += `<div class="review-explanation">${esc(q.explanation)}</div>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+
+  $resultsContent.innerHTML = html;
+}
+
+// ============================================================
+// EMAILJS — SEND RESULTS
+// ============================================================
+function sendResultsEmail(data) {
+  if (EMAILJS_PUBLIC_KEY === 'your_public_key') {
+    console.log('EmailJS not configured — skipping email send.');
+    return;
+  }
+
+  const { timedOut, answeredCount, totalCorrect, pct, passed, sectionScores, timeTakenStr } = data;
+
+  let body = '';
+  body += `<h2 style="color:#6B2D8B;">Melsoft Academy — BDM Sales Quiz Result</h2>`;
+  body += `<p><strong>Candidate:</strong> ${esc(candidateName)}</p>`;
+  body += `<p><strong>Date:</strong> ${formatDate(quizDate)}</p>`;
+  body += `<p><strong>Time taken:</strong> ${timeTakenStr}</p>`;
+
+  if (timedOut) {
+    body += `<p style="color:#C62828;font-weight:bold;">TIME EXPIRED &mdash; ${answeredCount} of ${QUESTIONS.length} questions answered. Unanswered questions scored as incorrect.</p>`;
+  }
+
+  body += `<p><strong>Overall score:</strong> ${totalCorrect}/${QUESTIONS.length} (${pct}%)</p>`;
+  body += `<p style="font-size:18px;font-weight:bold;color:${passed ? '#1B7D3A' : '#C62828'}">${passed ? 'PASSED' : 'FAILED'}</p>`;
+  body += `<p>Pass threshold: ${PASS_THRESHOLD}/${QUESTIONS.length}</p>`;
+  body += `<hr>`;
+
+  body += `<h3>Section Breakdown</h3>`;
+  [1,2,3,4].forEach(s => {
+    const score = sectionScores[s];
+    const total = SECTIONS[s].total;
+    const interp = getSectionInterpretation(s, score);
+    body += `<p><strong>${SECTIONS[s].name}:</strong> ${score}/${total} &mdash; <em>${interp.text}</em></p>`;
+  });
+  body += `<hr>`;
+
+  body += `<h3>Question Detail</h3>`;
+  body += `<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:14px;width:100%">`;
+  body += `<tr style="background:#6B2D8B;color:#fff"><th>#</th><th>Candidate</th><th>Correct</th><th>Result</th></tr>`;
+  QUESTIONS.forEach(q => {
+    const given = answers[q.id] || '—';
+    const isCorrect = answers[q.id] === q.correct;
+    const wasAnswered = answers[q.id] != null;
+    let result = '';
+    if (!wasAnswered) result = 'Not answered';
+    else if (isCorrect) result = 'Correct';
+    else result = 'Wrong';
+    const rowColor = !wasAnswered ? '#f5f5f5' : isCorrect ? '#e8f5e9' : '#ffebee';
+    body += `<tr style="background:${rowColor}"><td>${q.id}</td><td>${given}</td><td>${q.correct}</td><td>${result}</td></tr>`;
+  });
+  body += `</table>`;
+
+  try {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      admin_email: ADMIN_EMAIL,
+      candidate_name: candidateName,
+      pass_fail: passed ? 'PASSED' : 'FAILED',
+      results_html: body
+    }).then(
+      () => console.log('Results email sent successfully.'),
+      (err) => console.log('EmailJS send failed:', err)
+    );
+  } catch (e) {
+    console.log('EmailJS error:', e);
+  }
+}
+
+// ============================================================
+// GOOGLE SHEET — SEND RESULTS
+// ============================================================
+//
+// Posts one row per candidate to the Apps Script Web App.
+//
+// The request is sent as Content-Type: text/plain on purpose.
+// That is a "simple request" in CORS terms, so the browser does
+// not fire a preflight OPTIONS call — which Apps Script cannot
+// answer. The Apps Script side parses the body as JSON.
+//
+function sendResultsToSheet(data) {
+  if (SHEET_WEBAPP_URL === 'your_web_app_url') {
+    console.log('Google Sheet logging not configured — skipping.');
+    return;
+  }
+
+  const { timedOut, answeredCount, totalCorrect, pct, passed, sectionScores, timeTakenStr } = data;
+
+  // Per-question detail: the letter the candidate chose (or "-"),
+  // and a flat list of the question numbers they got wrong.
+  const perQuestion = {};
+  const wrong = [];
+  QUESTIONS.forEach(q => {
+    const given = answers[q.id] || '';
+    perQuestion['Q' + q.id] = given || '-';
+    if (given !== q.correct) wrong.push(q.id);
+  });
+
+  const payload = {
+    candidateName: candidateName,
+    quizDate: quizDate,
+    submittedAt: new Date().toISOString(),
+    totalQuestions: QUESTIONS.length,
+    answeredCount: answeredCount,
+    totalCorrect: totalCorrect,
+    percentage: pct,
+    result: passed ? 'PASSED' : 'FAILED',
+    passThreshold: PASS_THRESHOLD,
+    timeTaken: timeTakenStr,
+    timedOut: timedOut ? 'YES' : 'NO',
+    section1: sectionScores[1],
+    section2: sectionScores[2],
+    section3: sectionScores[3],
+    section4: sectionScores[4],
+    wrongQuestions: wrong.join(', '),
+    answers: perQuestion
+  };
+
+  try {
+    fetch(SHEET_WEBAPP_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(
+      () => console.log('Results posted to Google Sheet.'),
+      (err) => console.log('Google Sheet post failed:', err)
+    );
+  } catch (e) {
+    console.log('Google Sheet error:', e);
+  }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function showScreen(name) {
+  [$startScreen, $quizScreen, $resultScreen].forEach(s => s.classList.remove('active'));
+  if (name === 'start') $startScreen.classList.add('active');
+  else if (name === 'quiz') $quizScreen.classList.add('active');
+  else if (name === 'results') $resultScreen.classList.add('active');
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+</script>
+
+</body>
+</html>
